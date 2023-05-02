@@ -41,6 +41,7 @@ void setup()
   pwm.begin();
   pwm.setPWMFreq(50);  // Analog servos run at ~60 Hz updates
   delay(5000);
+  Serial.println("setup");
 }
 
 /**
@@ -56,7 +57,7 @@ void setup()
 float minDistance = 100000;
 float angleAtMinDist = 0;
 
-void run(int Speed)
+void back(int Speed)
 {
 
   pwm.setPWM(8, 0, Speed);
@@ -85,7 +86,7 @@ void run(int Speed)
   @retval        void
   @par History
 */
-void back(int Speed)
+void run(int Speed)
 {
   pwm.setPWM(8, 0, 0);
   pwm.setPWM(9, 0, Speed);
@@ -273,7 +274,8 @@ void printData(float angle, float distance)
 }
 void loop()
 {
-
+  //  analogWrite(RPLIDAR_MOTOR, 255); //atur 0-255 untuk kecepatan motor
+  //
   if (IS_OK(lidar.waitPoint())) {
     //perform data processing here...
     distance = lidar.getCurrentPoint().distance;
@@ -285,29 +287,40 @@ void loop()
     if (lidar.getCurrentPoint().startBit) {
       // a new scan, display the previous data...
       //      printData(angleAtMinDist, minDistance);
-      
-      if ((minDistance > 200) && (minDistance <= 400) && (angleAtMinDist > 310 || angleAtMinDist <= 50) ) {
 
-        Serial.print("ada: ");
+      if ((minDistance > 200) && (minDistance <= 400) && (angleAtMinDist > 310 || angleAtMinDist <= 50) ) {
+        Serial.print("Tahap 1 = (Kurangi Kecepatan > )");
+        Serial.print("Jarak: ");
         Serial.print(minDistance);
         Serial.print(" angle: ");
         Serial.println(angleAtMinDist);
-        back(100);
+        run(2048);
       }
       else if ((minDistance >= 50) && (minDistance <= 200) && (angleAtMinDist > 310 || angleAtMinDist <= 50)) {
-        spin_left(2024);
+        Serial.print("Tahap 2 = Sudah Dekat Objek > ");
+        
+        Serial.print("Jarak: " );
         Serial.print(minDistance);
         Serial.print(" angle: ");
         Serial.println(angleAtMinDist);
-        //        delay(1000);
+        brake();
+        Serial.println("Robot Berhenti");
+        delay(3000);
+        back(2048);
+        Serial.println("Robot Mundur");
+        delay(1000);
+        spin_left(2024);
+        Serial.println("Robot Berbelok");
+        delay(2000);
       }
 
       else {
-        Serial.print("kosong ");
+        Serial.print("Robot Jalan > ");
+        Serial.print("Jarak: ");
         Serial.print(minDistance);
         Serial.print(" angle: ");
         Serial.println(angleAtMinDist);
-        back(300);
+        run(4095);
         //          delay(1000);
       }
       minDistance = 100000;
@@ -350,14 +363,15 @@ void loop()
   //    run(100);
   //
   //  }
-  //  run(500);  //The speed range is: 0~4095
-  //  delay(2000);
-  //  back(4095);  //The speed range is: 0~4095
-  //  delay(2000);
-  //  spin_left(4095);  //The speed range is: 0~4095
-  //  delay(2000);
-  //  spin_right(4095);  //The speed range is: 0~4095
-  //  delay(2000);
-  //  brake();
-  //  delay(2000);
+  //    run(4095);  //The speed range is: 0~4095
+  //    delay(5000);
+  //    back(4095);  //The speed range is: 0~4095
+  //    delay(5000);
+  //    spin_left(4095);  //The speed range is: 0~4095
+  //    delay(2000);
+  //    spin_right(4095);  //The speed range is: 0~4095
+  //    delay(2000);
+  //    brake();
+  //    delay(2000);
+  //  Serial.println("loop");
 }
